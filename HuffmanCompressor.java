@@ -1,7 +1,10 @@
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.TreeMap;
 
 public class HuffmanCompressor implements Huffman{
@@ -9,21 +12,62 @@ public class HuffmanCompressor implements Huffman{
     @Override
     public Map<Character, Long> countFrequencies(String pathName) throws IOException {
         Map frequencyMap = new TreeMap<Character, Long>();
-        BufferedReader input = new BufferedReader(new FileReader(pathName));
-        String line;
-        while ((line = input.readLine()) != null) {
+        BufferedReader input;
+
+
+        // Open the file, if possible
+        try {
+            input = new BufferedReader(new FileReader(pathName));
+        }
+        catch (FileNotFoundException e) {
+            System.err.println("Cannot open file.\n" + e.getMessage());
+            return frequencyMap;
+        }
+
+        // Read file, if possible
+        try{
+            // line by line
+            String line;
+            while ((line = input.readLine()) != null) {
+                // loop through each character and add to Map
                Character character = (char) input.read();
-               if (frequencyMap.containsKey(character)) {
-                  frequencyMap.put(character, (Long)frequencyMap.get(character) +1);
-               }else{
-                   frequencyMap.put(character, 1);
+               System.out.println(character);
+               // if the end of the file has not been reached
+               if(input.read() != -1) {
+                   if (frequencyMap.containsKey(character)) {
+                       // if character has already been identified, increment frequency by 1
+                       frequencyMap.put(character, Long.valueOf((int)frequencyMap.get(character)) + 1);
+                   } else {
+                       // if character has not yet been identified in file, add to map
+                       frequencyMap.put(character, 1);
+                   }
+               }
             }
         }
+        catch (IOException e){
+            System.err.println("IO error while reading.\n" + e.getMessage());
+        }
+
+        // Close the file, if possible
+        try {
+            input.close();
+        }
+        catch (IOException e) {
+            System.err.println("Cannot close file.\n" + e.getMessage());
+        }
+
         return frequencyMap;
     }
 
     @Override
     public BinaryTree<CodeTreeElement> makeCodeTree(Map<Character, Long> frequencies) {
+        Comparator TreeComparator = new TreeComparator();
+        PriorityQueue priority = new PriorityQueue<CodeTreeElement>(TreeComparator);
+        for (Character key : frequencies.keySet()){
+            System.out.println("Key " + key + " appears " + frequencies.get(key) + " time.");
+            //CodeTreeElement temp = new CodeTreeElement(frequencies.get(key));
+            //priority.add(frequencies.get(key));
+        }
         return null;
     }
 
@@ -40,5 +84,14 @@ public class HuffmanCompressor implements Huffman{
     @Override
     public void decompressFile(String compressedPathName, String decompressedPathName, BinaryTree<CodeTreeElement> codeTree) throws IOException {
 
+    }
+
+    public static void main(String[] args) {
+        HuffmanCompressor test0 = new HuffmanCompressor();
+        try {
+            test0.makeCodeTree(test0.countFrequencies("test1.txt"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
