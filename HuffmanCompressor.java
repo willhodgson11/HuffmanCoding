@@ -14,7 +14,6 @@ public class HuffmanCompressor implements Huffman{
         Map frequencyMap = new TreeMap<Character, Long>();
         BufferedReader input;
 
-
         // Open the file, if possible
         try {
             input = new BufferedReader(new FileReader(pathName));
@@ -25,23 +24,25 @@ public class HuffmanCompressor implements Huffman{
         }
 
         // Read file, if possible
-        try{
-            // line by line
-            String line;
-            while ((line = input.readLine()) != null) {
-                // loop through each character and add to Map
-               Character character = (char) input.read();
-               System.out.println(character);
-               // if the end of the file has not been reached
-               if(input.read() != -1) {
-                   if (frequencyMap.containsKey(character)) {
-                       // if character has already been identified, increment frequency by 1
-                       frequencyMap.put(character, Long.valueOf((int)frequencyMap.get(character)) + 1);
-                   } else {
-                       // if character has not yet been identified in file, add to map
-                       frequencyMap.put(character, 1);
-                   }
-               }
+        try {
+            // loop through each character and add to Map
+            int charInt = 0;
+            // if the end of the file has not been reached, read each character
+            while (charInt != -1) {
+                charInt = input.read();
+                Character character = (char)charInt;
+                System.out.println(character);
+                // if character has already been identified, increment frequency by 1
+                if (frequencyMap.containsKey(character)) {
+
+                    frequencyMap.put(character, 1 + (int)frequencyMap.get(character));
+                }
+                // if character has not yet been identified in file, add to map
+                else {
+                    if(charInt != -1) {
+                        frequencyMap.put(character, 1);
+                    }
+                }
             }
         }
         catch (IOException e){
