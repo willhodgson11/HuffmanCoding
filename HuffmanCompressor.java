@@ -34,7 +34,6 @@ public class HuffmanCompressor implements Huffman{
                 System.out.println(character);
                 // if character has already been identified, increment frequency by 1
                 if (frequencyMap.containsKey(character)) {
-
                     frequencyMap.put(character, 1 + (int)frequencyMap.get(character));
                 }
                 // if character has not yet been identified in file, add to map
@@ -65,9 +64,14 @@ public class HuffmanCompressor implements Huffman{
         Comparator TreeComparator = new TreeComparator();
         PriorityQueue priority = new PriorityQueue<CodeTreeElement>(TreeComparator);
         for (Character key : frequencies.keySet()){
-            System.out.println("Key " + key + " appears " + frequencies.get(key) + " time.");
-            //CodeTreeElement temp = new CodeTreeElement(frequencies.get(key));
-            //priority.add(frequencies.get(key));
+            System.out.println("Key " + key + " appears " + frequencies.get(key) + " time(s).");
+            CodeTreeElement temp = new CodeTreeElement(frequencies.get(key), key);
+            priority.add(temp);
+        }
+        while (priority.size() != 0) {
+            BinaryTree left = new BinaryTree(priority.poll());
+            BinaryTree right = new BinaryTree(priority.poll());
+            BinaryTree root = new BinaryTree<CodeTreeElement>(null, left, right);
         }
         return null;
     }
