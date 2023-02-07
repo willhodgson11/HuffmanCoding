@@ -65,15 +65,24 @@ public class HuffmanCompressor implements Huffman{
         PriorityQueue priority = new PriorityQueue<CodeTreeElement>(TreeComparator);
         for (Character key : frequencies.keySet()){
             System.out.println("Key " + key + " appears " + frequencies.get(key) + " time(s).");
-            CodeTreeElement temp = new CodeTreeElement(frequencies.get(key), key);
-            priority.add(temp);
+            System.out.println(frequencies.get(key));
+            //TODO what the fuck that is a long you dumb bitch
+            CodeTreeElement ele = new CodeTreeElement(frequencies.get(key), key);
+            priority.add(ele);
         }
-        while (priority.size() != 0) {
-            BinaryTree left = new BinaryTree(priority.poll());
-            BinaryTree right = new BinaryTree(priority.poll());
-            BinaryTree root = new BinaryTree<CodeTreeElement>(null, left, right);
+        while (priority.size() != 1) {
+            //Extract the two lowest-frequency trees T1 and T2 from the priority queue.
+            CodeTreeElement leftData = (CodeTreeElement) priority.poll();
+            BinaryTree left = new BinaryTree(leftData);
+            CodeTreeElement rightData = (CodeTreeElement) priority.poll();
+            BinaryTree right = new BinaryTree(rightData);
+            //Create a new tree T by creating a new root node r, attaching T1 as r's left subtree, and attaching T2 as r's right subtree.
+            //Assign to the new tree T a frequency that equals the sum of the frequencies of T1 and T2.
+            BinaryTree root = new BinaryTree<CodeTreeElement>(new CodeTreeElement(leftData.myFrequency + rightData.myFrequency, null), left, right);
+            //Insert the new tree T into the priority queue (which will base its priority on the frequency value it holds).
+            priority.add(root);
         }
-        return null;
+        return (BinaryTree<CodeTreeElement>) priority.poll();
     }
 
     @Override
