@@ -11,7 +11,7 @@ public class HuffmanCompressor implements Huffman{
 
     @Override
     public Map<Character, Long> countFrequencies(String pathName) throws IOException {
-        Map frequencyMap = new TreeMap<Character, Long>();
+        Map<Character,Long> frequencyMap = new TreeMap<Character, Long>();
         BufferedReader input;
 
         // Open the file, if possible
@@ -34,12 +34,13 @@ public class HuffmanCompressor implements Huffman{
                 System.out.println(character);
                 // if character has already been identified, increment frequency by 1
                 if (frequencyMap.containsKey(character)) {
-                    frequencyMap.put(character, 1 + (int)frequencyMap.get(character));
+                    Long currCount = frequencyMap.get(character);
+                    frequencyMap.put(character, 1 + currCount);
                 }
                 // if character has not yet been identified in file, add to map
                 else {
                     if(charInt != -1) {
-                        frequencyMap.put(character, 1);
+                        frequencyMap.put(character, 1L);
                     }
                 }
             }
@@ -55,30 +56,31 @@ public class HuffmanCompressor implements Huffman{
         catch (IOException e) {
             System.err.println("Cannot close file.\n" + e.getMessage());
         }
-
         return frequencyMap;
+
     }
 
     @Override
     public BinaryTree<CodeTreeElement> makeCodeTree(Map<Character, Long> frequencies) {
         Comparator TreeComparator = new TreeComparator();
-        PriorityQueue priority = new PriorityQueue<CodeTreeElement>(TreeComparator);
+        PriorityQueue<BinaryTree<CodeTreeElement>> priority = new PriorityQueue<BinaryTree<CodeTreeElement>>(TreeComparator);
+        System.out.println(frequencies.get('\n'));
         for (Character key : frequencies.keySet()){
+
             System.out.println("Key " + key + " appears " + frequencies.get(key) + " time(s).");
-            System.out.println(frequencies.get(key));
-            //TODO what the fuck that is a long you dumb bitch
-            CodeTreeElement ele = new CodeTreeElement(frequencies.get(key), key);
+
+            BinaryTree<CodeTreeElement> ele = new BinaryTree<>( new CodeTreeElement(frequencies.get(key), key));
             priority.add(ele);
         }
         while (priority.size() != 1) {
             //Extract the two lowest-frequency trees T1 and T2 from the priority queue.
-            CodeTreeElement leftData = (CodeTreeElement) priority.poll();
-            BinaryTree left = new BinaryTree(leftData);
-            CodeTreeElement rightData = (CodeTreeElement) priority.poll();
-            BinaryTree right = new BinaryTree(rightData);
+            BinaryTree<CodeTreeElement> leftData =  priority.poll();
+            BinaryTree<CodeTreeElement> left = new BinaryTree(leftData);
+            BinaryTree<CodeTreeElement> rightData = priority.poll();
+            BinaryTree<CodeTreeElement> right = new BinaryTree(rightData);
             //Create a new tree T by creating a new root node r, attaching T1 as r's left subtree, and attaching T2 as r's right subtree.
             //Assign to the new tree T a frequency that equals the sum of the frequencies of T1 and T2.
-            BinaryTree root = new BinaryTree<CodeTreeElement>(new CodeTreeElement(leftData.myFrequency + rightData.myFrequency, null), left, right);
+            BinaryTree<CodeTreeElement> root = new BinaryTree<CodeTreeElement>(new CodeTreeElement(leftData.data.myFrequency + rightData.data.myFrequency, null), left, right);
             //Insert the new tree T into the priority queue (which will base its priority on the frequency value it holds).
             priority.add(root);
         }
@@ -87,7 +89,26 @@ public class HuffmanCompressor implements Huffman{
 
     @Override
     public Map<Character, String> computeCodes(BinaryTree<CodeTreeElement> codeTree) {
-        return null;
+        Map<Character, String> codes = new TreeMap<Character, String>();
+        String pathSoFar = "";
+        codes = computeCodesHelper(codeTree, codes, pathSoFar);
+        System.out.println("hehe" + codes);
+        return codes;
+    }
+    public Map<Character, String> computeCodesHelper(BinaryTree<CodeTreeElement> codeTree, Map<Character, String> codes,  String pathSoFar) {
+
+        if(codeTree.isLeaf()) {
+            Character peep = codeTree.getData().getChar();
+            codes.put(peep, pathSoFar);
+        }
+        if (codeTree.hasLeft()) {
+            computeCodesHelper(codeTree.getLeft(), codes, pathSoFar + 0);
+        }
+        if (codeTree.hasRight()) {
+            computeCodesHelper(codeTree.getRight(), codes, pathSoFar + 1);
+        }
+        return codes;
+
     }
 
     @Override
@@ -103,7 +124,8 @@ public class HuffmanCompressor implements Huffman{
     public static void main(String[] args) {
         HuffmanCompressor test0 = new HuffmanCompressor();
         try {
-            test0.makeCodeTree(test0.countFrequencies("test1.txt"));
+            BinaryTree<CodeTreeElement> codeTree = new BinaryTree<CodeTreeElement>(test0.makeCodeTree(test0.countFrequencies("test1.txt")));
+            test0.computeCodes(codeTree);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
