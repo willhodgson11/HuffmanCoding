@@ -124,8 +124,7 @@ public class HuffmanCompressor implements Huffman{
     public static void main(String[] args) {
         HuffmanCompressor test0 = new HuffmanCompressor();
         try {
-            BinaryTree<CodeTreeElement> codeTree = new BinaryTree<CodeTreeElement>(test0.makeCodeTree(test0.countFrequencies("test1.txt")));
-            test0.computeCodes(codeTree);
+            test0.computeCodes(test0.makeCodeTree(test0.countFrequencies("test1.txt")));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
